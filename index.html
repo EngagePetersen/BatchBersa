@@ -1,0 +1,2186 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planificador de Tareas Para Optimizar Proceso Batch</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --panel-soft: #eef3f8;
+      --ink: #17202a;
+      --muted: #687484;
+      --line: #d9e0e7;
+      --accent: #146c94;
+      --accent-2: #1f9d78;
+      --accent-3: #e0a11b;
+      --danger: #c83e4d;
+      --shadow: 0 14px 36px rgba(31, 45, 61, 0.11);
+      --brand-blue: #031c59;
+      --brand-sky: #2d60d7;
+      --brand-magenta: #992468;
+      --brand-coral: #e25a3f;
+      --brand-coral-dark: #a93a24;
+      --brand-gold: #ebad1c;
+      --brand-soft: #fff1e8;
+      --brand-soft-2: #fde6d8;
+      --brand-soft-3: #fbd6c4;
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, #ffffff 0%, #f4f7fd 42%, #edf1f5 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .shell {
+      width: calc(100% - 24px);
+      margin: 0 auto;
+      padding: 22px 0 32px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      background: linear-gradient(105deg, rgba(235, 173, 28, 0.2) 0%, rgba(235, 173, 28, 0.58) 42%, rgba(226, 90, 63, 0.72) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 18px;
+    }
+
+    .brand-heading {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 148px;
+      height: 52px;
+      object-fit: contain;
+      flex: 0 0 auto;
+      background: #ffffff;
+      border-radius: 7px;
+      padding: 6px 10px;
+      opacity: 0.8;
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 38px);
+      line-height: 1.04;
+      letter-spacing: 0;
+      color: var(--brand-coral-dark);
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: rgba(3, 28, 89, 0.72);
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .topbar .btn {
+      border-color: rgba(3, 28, 89, 0.24);
+      background: rgba(255, 255, 255, 0.36);
+      color: var(--brand-coral);
+    }
+
+    .topbar .btn:hover {
+      border-color: rgba(3, 28, 89, 0.42);
+      background: rgba(255, 255, 255, 0.52);
+    }
+
+    .topbar .btn.primary {
+      background: linear-gradient(135deg, var(--brand-coral), var(--brand-magenta));
+      color: #ffffff;
+      font-weight: 750;
+      box-shadow: 0 8px 18px rgba(226, 90, 63, 0.24);
+    }
+
+    .btn {
+      border: 1px solid #c9d5ea;
+      background: #ffffff;
+      color: var(--brand-coral);
+      min-height: 38px;
+      padding: 8px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(3, 28, 89, 0.18);
+      border-color: var(--brand-coral);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--brand-coral), var(--brand-magenta));
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .btn.danger {
+      color: var(--brand-coral);
+      border-color: rgba(226, 90, 63, 0.28);
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      border: 1px solid var(--brand-soft-3);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #ffffff, var(--brand-soft));
+      box-shadow: 0 8px 22px rgba(226, 90, 63, 0.1);
+      padding: 7px;
+    }
+
+    .tab-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--brand-coral);
+      min-height: 42px;
+      padding: 10px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-weight: 750;
+    }
+
+    .tab-btn:hover {
+      color: var(--brand-magenta);
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .tab-btn.active {
+      color: #ffffff;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--brand-coral), var(--brand-magenta));
+      box-shadow: 0 8px 18px rgba(226, 90, 63, 0.24);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    #tasksTab.active,
+    #batchTimesTab.active,
+    #progressTab.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .task-form-panel {
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+
+    .task-form-panel.collapsed form {
+      display: none;
+    }
+
+    .task-form-panel.collapsed .panel-head {
+      border-bottom: 0;
+    }
+
+    .head-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tasks-workspace {
+      display: grid;
+      grid-template-columns: minmax(720px, 1fr) minmax(500px, 0.42fr);
+      gap: 16px;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .tasks-workspace > .panel {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(217, 224, 231, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      padding: 16px 18px 10px;
+      border-bottom: 1px solid var(--brand-soft-3);
+      background: linear-gradient(90deg, rgba(255, 241, 232, 0.98), rgba(255, 255, 255, 0));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: 0;
+      color: var(--brand-coral);
+    }
+
+    .pill {
+      color: var(--brand-blue);
+      background: #ffffff;
+      border: 1px solid var(--brand-soft-3);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .pill.brand-status {
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--brand-coral), var(--brand-magenta));
+      border-color: transparent;
+      box-shadow: 0 8px 18px rgba(226, 90, 63, 0.18);
+    }
+
+    .pill.today-status {
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--brand-coral), var(--brand-magenta));
+      border-color: transparent;
+      box-shadow: 0 8px 18px rgba(226, 90, 63, 0.18);
+      font-weight: 750;
+    }
+
+    form {
+      padding: 16px 18px 18px;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    input {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 10px 10px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(20, 108, 148, 0.12);
+    }
+
+    select {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 10px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+    }
+
+    .readonly-value {
+      min-height: 41px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 10px;
+      color: var(--ink);
+      background: #f8fafb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: 436px;
+      min-height: 0;
+    }
+
+    .task-table-wrap {
+      flex: 1;
+      max-height: none;
+      height: 100%;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+
+    .task-form-panel.collapsed + .tasks-workspace {
+      flex: 1;
+    }
+
+    .task-form-panel.collapsed + .tasks-workspace .task-table-wrap {
+      max-height: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 11px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: var(--brand-soft);
+      color: var(--brand-blue);
+      font-size: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr {
+      cursor: pointer;
+    }
+
+    tbody tr:hover {
+      background: #f7fbfd;
+    }
+
+    tbody tr.selected {
+      background: #fff3ec;
+      outline: 2px solid rgba(226, 90, 63, 0.22);
+      outline-offset: -2px;
+    }
+
+    .progress-track {
+      width: 120px;
+      height: 9px;
+      border-radius: 999px;
+      background: #dfe7ee;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: inherit;
+    }
+
+    .batch-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+    }
+
+    .metric small {
+      color: var(--muted);
+      display: block;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .metric strong {
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .batch-table {
+      min-width: 760px;
+    }
+
+    .num {
+      text-align: right;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #dce7ef;
+      background: #f2f6f9;
+      color: #43505d;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .chart-tools {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) repeat(2, minmax(150px, 0.35fr));
+      gap: 12px;
+      padding: 14px 16px 0;
+    }
+
+    .chart-scroll {
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .batch-data-wrap {
+      flex: 1;
+      height: auto;
+      max-height: none;
+      min-height: 0;
+    }
+
+    #batchTimesTab > .panel {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    #batchTimesTab .metrics {
+      flex-shrink: 0;
+    }
+
+    .batch-hitos-panel {
+      margin-top: 16px;
+    }
+
+    .batch-hitos-table {
+      min-width: 560px;
+    }
+
+    .swatch.core {
+      background: #3478f6;
+    }
+
+    .swatch.diario {
+      background: #19a974;
+    }
+
+    .swatch.bucket {
+      background: #ef8f35;
+    }
+
+    .swatch.total {
+      background: #27364f;
+    }
+
+    .swatch.change {
+      background: #7b4dd8;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    #progressTab .charts,
+    #progressTab .panel {
+      flex: 1;
+      min-height: 0;
+      min-width: 0;
+      width: 100%;
+    }
+
+    #progressTab .panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-body {
+      padding: 14px 16px 16px;
+      min-height: 360px;
+    }
+
+    .task-minutes-body {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      min-height: 0;
+    }
+
+    #minutesChart {
+      width: min(100%, 680px);
+      min-width: 500px;
+    }
+
+    .timeline-body {
+      flex: 1;
+      min-height: 0;
+      min-width: 0;
+      padding: 10px 12px 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .timeline-scroll {
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: auto;
+      height: auto;
+      max-height: none;
+      min-width: 0;
+      min-height: 0;
+      width: 100%;
+      max-width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcfd;
+      scrollbar-gutter: stable both-edges;
+    }
+
+    .timeline-canvas {
+      display: inline-block;
+      min-width: max-content;
+      vertical-align: top;
+    }
+
+    .timeline-canvas svg {
+      display: block;
+      width: auto;
+      max-width: none;
+      height: auto;
+    }
+
+    .timeline-grid {
+      display: grid;
+      min-width: 100%;
+      width: max-content;
+      position: relative;
+      background: #fffaf7;
+    }
+
+    .timeline-month,
+    .timeline-day,
+    .timeline-corner,
+    .timeline-task,
+    .timeline-day-bg {
+      border-right: 1px solid #f1d4c5;
+      border-bottom: 1px solid #f1d4c5;
+    }
+
+    .timeline-month {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      height: 26px;
+      background: #fde6d8;
+      color: #43505d;
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 750;
+    }
+
+    .timeline-day {
+      position: sticky;
+      top: 26px;
+      z-index: 5;
+      height: 34px;
+      background: #fff1e8;
+      color: #687484;
+      display: grid;
+      place-items: center;
+      font-size: 9px;
+      line-height: 1.15;
+      text-align: center;
+    }
+
+    .timeline-corner {
+      position: sticky;
+      left: 0;
+      z-index: 8;
+      background: #fffaf7;
+      color: #687484;
+      display: grid;
+      align-items: center;
+      padding: 0 10px;
+      font-size: 10px;
+      font-weight: 750;
+    }
+
+    .timeline-corner.top {
+      top: 0;
+      height: 26px;
+    }
+
+    .timeline-corner.bottom {
+      top: 26px;
+      height: 34px;
+    }
+
+    .timeline-task {
+      position: sticky;
+      left: 0;
+      z-index: 4;
+      background: #fffaf7;
+      color: #43505d;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: clip;
+    }
+
+    .timeline-day-bg {
+      min-height: 30px;
+      background: #fffaf7;
+    }
+
+    .timeline-day-bg.week-start {
+      background: #fff1e8;
+    }
+
+    .timeline-task-bar {
+      align-self: center;
+      height: 14px;
+      border-radius: 4px;
+      background: #c9dce8;
+      overflow: hidden;
+      z-index: 2;
+      margin: 0 3px;
+      box-shadow: inset 0 0 0 1px rgba(20, 108, 148, 0.08);
+    }
+
+    .timeline-task-bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: #1f9d78;
+    }
+
+    .timeline-progress-label {
+      align-self: center;
+      color: #687484;
+      font-size: 10px;
+      z-index: 3;
+      padding-left: 4px;
+      white-space: nowrap;
+    }
+
+    .timeline-today {
+      background: rgba(226, 90, 63, 0.16);
+      border-left: 2px dashed var(--brand-magenta);
+      border-right: 2px dashed var(--brand-magenta);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .batch-tooltip {
+      position: fixed;
+      z-index: 20;
+      display: none;
+      min-width: 150px;
+      border-radius: 7px;
+      background: #15202b;
+      color: #fff;
+      box-shadow: var(--shadow);
+      padding: 9px 10px;
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    .batch-tooltip strong,
+    .batch-tooltip span {
+      display: block;
+    }
+
+    .batch-tooltip span {
+      margin-top: 3px;
+      color: #dbe5ed;
+    }
+
+    .batch-bar {
+      cursor: crosshair;
+    }
+
+    .batch-bar:hover {
+      filter: brightness(0.92);
+      stroke: #15202b;
+      stroke-width: 1.5;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .empty {
+      padding: 34px 18px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: #15202b;
+      color: #fff;
+      border-radius: 7px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      max-width: min(420px, calc(100vw - 36px));
+      font-size: 13px;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    @media (max-width: 1040px) {
+      .tasks-workspace,
+      .charts {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics,
+      .chart-tools {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .table-wrap:not(.task-table-wrap):not(.batch-data-wrap) {
+        max-height: 380px;
+      }
+
+      body {
+        overflow: auto;
+      }
+
+      .shell {
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+      }
+
+      .tab-panel.active {
+        overflow: visible;
+      }
+
+      .tasks-workspace {
+        height: auto;
+      }
+
+      .batch-data-wrap,
+      .timeline-scroll {
+        height: 560px;
+      }
+
+      #minutesChart {
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .shell {
+        width: calc(100% - 20px);
+        padding-top: 14px;
+      }
+
+      .topbar,
+      .panel-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .brand-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .brand-logo {
+        width: 132px;
+        height: 46px;
+      }
+
+      .head-actions {
+        width: 100%;
+      }
+
+      .actions {
+        justify-content: flex-start;
+      }
+
+      .fields {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics,
+      .chart-tools {
+        grid-template-columns: 1fr;
+      }
+
+      .wide {
+        grid-column: auto;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand-heading">
+        <img class="brand-logo" src="https://engage-sc.com.ar/wp-content/uploads/2017/10/engage-logo.png" alt="Engage">
+        <div class="brand-copy">
+          <h1>Planificador de Tareas Para Optimizar Proceso Batch</h1>
+          <p class="subtitle">ABM de tareas, seguimiento de avances y comparación de mejora de tiempos.</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" type="button" id="importJsonBtn" title="Importar tareas desde un archivo JSON">Importar JSON</button>
+        <button class="btn primary" type="button" id="exportJsonBtn" title="Descargar tareas como JSON">Exportar JSON</button>
+        <button class="btn primary" type="button" id="exportHtmlBtn" title="Descargar este HTML con los datos actuales">Exportar HTML con datos</button>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Secciones">
+      <button class="tab-btn active" type="button" data-tab="tasksTab">Tareas</button>
+      <button class="tab-btn" type="button" data-tab="progressTab">Avance</button>
+      <button class="tab-btn" type="button" data-tab="batchTimesTab">Datos Batch</button>
+      <button class="tab-btn" type="button" data-tab="batchChartTab">Batch Gráfico</button>
+    </nav>
+
+    <section class="tab-panel active" id="tasksTab">
+      <article class="panel task-form-panel" id="taskFormPanel">
+        <div class="panel-head">
+          <h2 class="panel-title">ABM de tarea</h2>
+          <div class="head-actions">
+            <span class="pill brand-status" id="formMode">Nueva tarea</span>
+            <button class="btn primary" type="button" id="toggleFormBtn">Ocultar ABM</button>
+          </div>
+        </div>
+        <form id="taskForm">
+          <div class="fields">
+            <label>
+              Numero de orden
+              <input id="order" type="number" min="1" step="1" required>
+            </label>
+            <label>
+              % progreso
+              <input id="progress" type="number" min="0" max="100" step="1" required>
+            </label>
+            <label class="wide">
+              Nombre de la tarea
+              <input id="name" type="text" maxlength="90" required>
+            </label>
+            <label>
+              Fecha de inicio
+              <input id="startDate" type="date" required>
+            </label>
+            <label>
+              Fecha de fin
+              <input id="endDate" type="date" required>
+            </label>
+            <label>
+              Minutos actuales
+              <input id="currentMinutes" type="number" min="0" step="0.01" required>
+            </label>
+            <label>
+              Minutos deseados
+              <input id="desiredMinutes" type="number" min="0" step="0.01" required>
+            </label>
+            <label>
+              Resultado minutos
+              <input id="resultMinutes" type="number" min="0" step="0.01" required>
+            </label>
+            <label>
+              % disminucion del tiempo
+              <span class="readonly-value"><strong id="reductionPreview">0%</strong><small>Calculado</small></span>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="btn primary" type="submit" id="saveBtn">Guardar tarea</button>
+            <button class="btn primary" type="button" id="clearBtn">Limpiar</button>
+            <button class="btn primary" type="button" id="deleteBtn">Eliminar seleccionada</button>
+          </div>
+        </form>
+      </article>
+
+      <section class="tasks-workspace">
+        <article class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">Tareas cargadas</h2>
+            <span class="pill" id="taskCount">0 tareas</span>
+          </div>
+          <div class="table-wrap task-table-wrap" id="tableWrap"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">Minutos de la tarea seleccionada</h2>
+            <span class="pill" id="selectedLabel">Sin seleccion</span>
+          </div>
+          <div class="chart-body task-minutes-body">
+            <div id="minutesChart"></div>
+          </div>
+        </article>
+      </section>
+    </section>
+
+    <section class="tab-panel" id="progressTab">
+      <section class="charts">
+        <article class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">Avance de tareas en el tiempo</h2>
+            <span class="pill today-status" id="todayLabel"></span>
+          </div>
+          <div class="chart-body timeline-body">
+            <div class="timeline-scroll" id="timelineChart"></div>
+            <div class="legend">
+              <span><i class="swatch" style="background: var(--accent);"></i>Periodo planificado</span>
+              <span><i class="swatch" style="background: var(--accent-2);"></i>Avance</span>
+              <span><i class="swatch" style="background: var(--danger);"></i>Dia actual</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </section>
+
+    <section class="tab-panel" id="batchTimesTab">
+      <section class="metrics" aria-label="Indicadores batch">
+        <div class="metric"><small>Registros</small><strong id="batchMetricRows">0</strong></div>
+        <div class="metric"><small>Promedio total</small><strong id="batchMetricAvg">0 min</strong></div>
+        <div class="metric"><small>Ultimo total</small><strong id="batchMetricLast">0 min</strong></div>
+        <div class="metric"><small>Variacion vs. anterior</small><strong id="batchMetricDelta">0 min</strong></div>
+      </section>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Tiempos de ejecucion batch</h2>
+          <div class="batch-actions">
+            <button class="btn primary" type="button" id="importBatchCsvBtn">Cargar tiempos CSV</button>
+            <button class="btn primary" type="button" id="importBatchChangesCsvBtn">Cargar hitos CSV</button>
+            <button class="btn primary" type="button" id="exportBatchCsvBtn">Exportar tiempos CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap batch-data-wrap">
+          <table class="batch-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th class="num">CORE</th>
+                <th class="num">DIARIO</th>
+                <th class="num">BUCKET</th>
+                <th class="num">TOTAL</th>
+                <th>Periodo</th>
+              </tr>
+            </thead>
+            <tbody id="batchRecordsBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="tab-panel" id="batchChartTab">
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Grafico de tiempos batch</h2>
+          <div class="batch-actions">
+            <button class="btn primary" type="button" id="fitBatchTotalBtn">Ajustar TOTAL = suma</button>
+          </div>
+        </div>
+        <div class="chart-tools">
+          <label>Tipo de grafico
+            <select id="batchChartMode">
+              <option value="stacked">Barras apiladas + linea TOTAL</option>
+              <option value="total">Solo TOTAL</option>
+              <option value="core">Solo CORE</option>
+              <option value="diario">Solo DIARIO</option>
+              <option value="bucket">Solo BUCKET</option>
+              <option value="grouped">Barras agrupadas</option>
+            </select>
+          </label>
+          <label>Desde
+            <input type="date" id="batchFromDate">
+          </label>
+          <label>Hasta
+            <input type="date" id="batchToDate">
+          </label>
+        </div>
+        <div class="chart-body">
+          <div class="chart-scroll">
+            <div id="batchChart"></div>
+          </div>
+          <div class="legend">
+            <span><i class="swatch core"></i>CORE</span>
+            <span><i class="swatch diario"></i>DIARIO</span>
+            <span><i class="swatch bucket"></i>BUCKET</span>
+            <span><i class="swatch total"></i>TOTAL</span>
+            <span><i class="swatch change"></i>Cambio</span>
+          </div>
+        </div>
+      </article>
+      <article class="panel batch-hitos-panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Hitos de cambio</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="batch-hitos-table">
+            <thead>
+              <tr>
+                <th>Fecha desde</th>
+                <th>Descripcion</th>
+              </tr>
+            </thead>
+            <tbody id="batchChangesBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <input class="file-input" id="importFile" type="file" accept="application/json,.json">
+  <input class="file-input" id="batchCsvFile" type="file" accept=".csv,text/csv">
+  <input class="file-input" id="batchChangesCsvFile" type="file" accept=".csv,text/csv">
+  <div class="toast" id="toast"></div>
+  <div class="batch-tooltip" id="batchTooltip"></div>
+
+  <script id="embedded-data" type="application/json">[]</script>
+  <script id="embedded-batch-records" type="text/csv">Fecha,CORE,DIARIO,BUCKET,TOTAL
+2026-06-13,60,171,39,270
+2026-06-17,73,198,43,314
+2026-06-18,64,155,30,249
+2026-06-19,57,160,32,249
+2026-06-20,66,146,30,242
+2026-06-23,56,157,29,242
+2026-06-24,52,159,28,239
+2026-06-25,60,157,27,244
+2026-06-26,55,166,0,221
+2026-06-27,55,166,24,245
+2026-06-30,63,187,24,274
+2026-07-02,54,180,23,257
+2026-07-03,56,181,22,259
+2026-07-04,65,215,22,302
+2026-07-09,56,182,26,264
+2026-07-14,59,251,8,318
+2026-07-15,57,175,36,268
+2026-07-16,65,178,31,274
+2026-07-17,55,167,30,252
+2026-07-18,57,179,29,265
+2026-07-21,60,182,31,273
+2026-07-22,53,162,30,245
+2026-07-23,56,171,26,253
+2026-07-24,56,174,28,258
+2026-07-25,60,170,25,255
+2026-07-28,61,222,26,309
+2026-07-29,23,175,26,224
+2026-07-30,25,191,26,242
+2026-07-31,27,182,24,233
+2026-08-01,23,272,26,321
+2026-08-04,18,209,24,251
+2026-08-05,17,174,23,214
+2026-08-07,18,185,21,224
+2026-08-08,17,203,24,244
+2026-08-11,16,194,28,238
+2026-08-12,15,199,27,241
+2026-08-13,17,178,26,221
+2026-08-14,19,184,30,233
+2026-08-15,17,176,31,224
+2026-08-20,15,196,27,238
+2026-08-21,24,292,33,349
+2026-08-22,15,204,29,248
+2026-08-25,18,206,35,259
+2026-08-26,17,127,32,176
+2026-08-27,18,130,57,205
+2026-08-28,15,102,30,147
+2026-08-29,18,164,30,212
+2026-09-01,15,199,31,245
+2026-09-02,19,112,27,158
+2026-09-03,14,122,24,160
+2026-09-04,18,114,24,156
+2026-09-05,20,147,24,191
+2026-09-08,15,114,25,154
+2026-09-09,22,122,27,171
+2026-09-10,12,100,28,140
+2026-09-11,24,126,27,177
+2026-09-12,13,107,29,149</script>
+  <script id="embedded-batch-changes" type="text/csv">Fecha,Nombre
+2026-07-29,Paralelización Core
+2026-08-26,Cambio en Pagos de Cta Cte
+2026-09-02,Actualización Informe Accotto</script>
+  <script>
+    const STORAGE_KEY = "planificador_tareas_v1";
+    const BATCH_RECORDS_STORAGE_KEY = "planificador_batch_records_v1";
+    const BATCH_CHANGES_STORAGE_KEY = "planificador_batch_changes_v1";
+    const BATCH_COLORS = {
+      core: "#3478f6",
+      diario: "#19a974",
+      bucket: "#ef8f35",
+      total: "#27364f",
+      change: "#7b4dd8"
+    };
+    const DATE_FORMAT = new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    const moneylessNumber = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 });
+    const form = document.getElementById("taskForm");
+    const inputs = {
+      order: document.getElementById("order"),
+      name: document.getElementById("name"),
+      startDate: document.getElementById("startDate"),
+      endDate: document.getElementById("endDate"),
+      progress: document.getElementById("progress"),
+      currentMinutes: document.getElementById("currentMinutes"),
+      desiredMinutes: document.getElementById("desiredMinutes"),
+      resultMinutes: document.getElementById("resultMinutes")
+    };
+    const state = {
+      tasks: loadInitialTasks(),
+      batchRecords: loadInitialBatchRecords(),
+      batchChanges: loadInitialBatchChanges(),
+      selectedId: null,
+      editingId: null
+    };
+
+    document.getElementById("todayLabel").textContent = "Hoy: " + DATE_FORMAT.format(new Date());
+    document.getElementById("toggleFormBtn").addEventListener("click", toggleTaskForm);
+    document.getElementById("deleteBtn").addEventListener("click", deleteSelected);
+    document.getElementById("clearBtn").addEventListener("click", clearForm);
+    document.getElementById("exportJsonBtn").addEventListener("click", exportJson);
+    document.getElementById("exportHtmlBtn").addEventListener("click", exportHtmlWithData);
+    document.getElementById("importJsonBtn").addEventListener("click", () => document.getElementById("importFile").click());
+    document.getElementById("importFile").addEventListener("change", importJson);
+    document.getElementById("importBatchCsvBtn").addEventListener("click", () => document.getElementById("batchCsvFile").click());
+    document.getElementById("importBatchChangesCsvBtn").addEventListener("click", () => document.getElementById("batchChangesCsvFile").click());
+    document.getElementById("batchCsvFile").addEventListener("change", importBatchCsv);
+    document.getElementById("batchChangesCsvFile").addEventListener("change", importBatchChangesCsv);
+    document.getElementById("exportBatchCsvBtn").addEventListener("click", exportBatchCsv);
+    document.getElementById("fitBatchTotalBtn").addEventListener("click", fitBatchTotal);
+    document.getElementById("batchChartMode").addEventListener("change", render);
+    document.getElementById("batchFromDate").addEventListener("change", render);
+    document.getElementById("batchToDate").addEventListener("change", render);
+    document.getElementById("batchChart").addEventListener("mousemove", showBatchTooltip);
+    document.getElementById("batchChart").addEventListener("mouseleave", hideBatchTooltip);
+    document.querySelectorAll(".tab-btn").forEach((button) => {
+      button.addEventListener("click", () => activateTab(button.dataset.tab));
+    });
+    ["currentMinutes", "resultMinutes"].forEach((key) => {
+      inputs[key].addEventListener("input", updateReductionPreview);
+    });
+    form.addEventListener("submit", saveTask);
+
+    render();
+
+    function loadInitialTasks() {
+      const embedded = document.getElementById("embedded-data").textContent.trim();
+      if (embedded && embedded !== "[]") {
+        try {
+          const tasks = normalizeTasks(JSON.parse(embedded));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+          return tasks;
+        } catch {
+          return [];
+        }
+      }
+
+      const local = localStorage.getItem(STORAGE_KEY);
+      if (local) {
+        try {
+          return normalizeTasks(JSON.parse(local));
+        } catch {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      }
+      return [];
+    }
+
+    function loadInitialBatchRecords() {
+      const local = localStorage.getItem(BATCH_RECORDS_STORAGE_KEY);
+      if (local) {
+        try {
+          return normalizeBatchRecords(JSON.parse(local));
+        } catch {
+          localStorage.removeItem(BATCH_RECORDS_STORAGE_KEY);
+        }
+      }
+      return parseBatchRecordsCsv(document.getElementById("embedded-batch-records").textContent);
+    }
+
+    function loadInitialBatchChanges() {
+      const local = localStorage.getItem(BATCH_CHANGES_STORAGE_KEY);
+      if (local) {
+        try {
+          return normalizeBatchChanges(JSON.parse(local));
+        } catch {
+          localStorage.removeItem(BATCH_CHANGES_STORAGE_KEY);
+        }
+      }
+      return parseBatchChangesCsv(document.getElementById("embedded-batch-changes").textContent);
+    }
+
+    function normalizeTasks(tasks) {
+      if (!Array.isArray(tasks)) return [];
+      return tasks.map((task) => ({
+        id: String(task.id || makeId()),
+        order: Number(task.order || 0),
+        name: String(task.name || ""),
+        startDate: String(task.startDate || ""),
+        endDate: String(task.endDate || ""),
+        progress: clamp(Number(task.progress || 0), 0, 100),
+        currentMinutes: Number(task.currentMinutes || 0),
+        desiredMinutes: Number(task.desiredMinutes || 0),
+        resultMinutes: Number(task.resultMinutes || 0)
+      })).filter((task) => task.name && task.startDate && task.endDate);
+    }
+
+    function saveTask(event) {
+      event.preventDefault();
+      const task = readForm();
+      if (new Date(task.endDate) < new Date(task.startDate)) {
+        toast("La fecha de fin no puede ser anterior a la fecha de inicio.");
+        inputs.endDate.focus();
+        return;
+      }
+
+      if (state.editingId) {
+        task.id = state.editingId;
+        state.tasks = state.tasks.map((item) => item.id === state.editingId ? task : item);
+        state.selectedId = state.editingId;
+        toast("Tarea actualizada.");
+      } else {
+        task.id = makeId();
+        state.tasks.push(task);
+        state.selectedId = task.id;
+        toast("Tarea agregada.");
+      }
+
+      persist();
+      clearForm(false);
+      render();
+    }
+
+    function readForm() {
+      return {
+        order: Number(inputs.order.value),
+        name: inputs.name.value.trim(),
+        startDate: inputs.startDate.value,
+        endDate: inputs.endDate.value,
+        progress: clamp(Number(inputs.progress.value), 0, 100),
+        currentMinutes: Number(inputs.currentMinutes.value),
+        desiredMinutes: Number(inputs.desiredMinutes.value),
+        resultMinutes: Number(inputs.resultMinutes.value)
+      };
+    }
+
+    function editTask(id) {
+      const task = state.tasks.find((item) => item.id === id);
+      if (!task) return;
+      state.selectedId = id;
+      state.editingId = id;
+      inputs.order.value = task.order;
+      inputs.name.value = task.name;
+      inputs.startDate.value = task.startDate;
+      inputs.endDate.value = task.endDate;
+      inputs.progress.value = task.progress;
+      inputs.currentMinutes.value = task.currentMinutes;
+      inputs.desiredMinutes.value = task.desiredMinutes;
+      inputs.resultMinutes.value = task.resultMinutes;
+      document.getElementById("formMode").textContent = "Editando";
+      document.getElementById("saveBtn").textContent = "Actualizar tarea";
+      updateReductionPreview();
+      render();
+    }
+
+    function deleteSelected() {
+      if (!state.selectedId) {
+        toast("Selecciona una tarea para eliminar.");
+        return;
+      }
+      const selected = state.tasks.find((item) => item.id === state.selectedId);
+      const ok = confirm("Eliminar la tarea \"" + selected.name + "\"?");
+      if (!ok) return;
+      state.tasks = state.tasks.filter((item) => item.id !== state.selectedId);
+      state.selectedId = state.tasks[0]?.id || null;
+      clearForm(false);
+      persist();
+      render();
+      toast("Tarea eliminada.");
+    }
+
+    function clearForm(showMessage = true) {
+      form.reset();
+      state.editingId = null;
+      document.getElementById("formMode").textContent = "Nueva tarea";
+      document.getElementById("saveBtn").textContent = "Guardar tarea";
+      updateReductionPreview();
+      if (showMessage) toast("Formulario limpio.");
+    }
+
+    function selectTask(id) {
+      state.selectedId = id;
+      render();
+    }
+
+    function selectTaskForEdit(id) {
+      editTask(id);
+      const panel = document.getElementById("taskFormPanel");
+      if (!panel.classList.contains("collapsed")) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
+    function activateTab(tabId) {
+      document.querySelectorAll(".tab-btn").forEach((button) => {
+        button.classList.toggle("active", button.dataset.tab === tabId);
+      });
+      document.querySelectorAll(".tab-panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.id === tabId);
+      });
+    }
+
+    function toggleTaskForm() {
+      const panel = document.getElementById("taskFormPanel");
+      const collapsed = panel.classList.toggle("collapsed");
+      document.getElementById("toggleFormBtn").textContent = collapsed ? "Mostrar ABM" : "Ocultar ABM";
+    }
+
+    function showTaskForm() {
+      const panel = document.getElementById("taskFormPanel");
+      panel.classList.remove("collapsed");
+      document.getElementById("toggleFormBtn").textContent = "Ocultar ABM";
+    }
+
+    function sortedTasks() {
+      return [...state.tasks].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "es"));
+    }
+
+    function render() {
+      const tasks = sortedTasks();
+      document.getElementById("taskCount").textContent = tasks.length === 1 ? "1 tarea" : tasks.length + " tareas";
+      if (!state.selectedId && tasks.length) state.selectedId = tasks[0].id;
+      renderTable(tasks);
+      renderTimeline(tasks);
+      renderMinutesChart(tasks.find((task) => task.id === state.selectedId));
+      renderBatchMetrics();
+      renderBatchTable();
+      renderBatchChart();
+      renderBatchChanges();
+    }
+
+    function renderTable(tasks) {
+      const wrap = document.getElementById("tableWrap");
+      if (!tasks.length) {
+        wrap.innerHTML = '<div class="empty">Todavia no hay tareas cargadas.</div>';
+        return;
+      }
+      const rows = tasks.map((task) => {
+        const reduction = calcReduction(task.currentMinutes, task.resultMinutes);
+        return `
+          <tr class="${task.id === state.selectedId ? "selected" : ""}" data-id="${task.id}">
+            <td>${escapeHtml(task.order)}</td>
+            <td><strong>${escapeHtml(task.name)}</strong></td>
+            <td>${formatDate(task.startDate)}</td>
+            <td>${formatDate(task.endDate)}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="progress-track"><div class="progress-fill" style="width:${task.progress}%"></div></div>
+                <span>${task.progress}%</span>
+              </div>
+            </td>
+            <td>${formatNumber(task.currentMinutes)}</td>
+            <td>${formatNumber(task.desiredMinutes)}</td>
+            <td>${formatNumber(task.resultMinutes)}</td>
+            <td>${formatNumber(reduction)}%</td>
+            <td><button class="btn" type="button" data-edit="${task.id}">Editar</button></td>
+          </tr>
+        `;
+      }).join("");
+
+      wrap.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Orden</th>
+              <th>Tarea</th>
+              <th>Inicio</th>
+              <th>Fin</th>
+              <th>Progreso</th>
+              <th>Actual</th>
+              <th>Deseado</th>
+              <th>Resultado</th>
+              <th>Disminucion</th>
+              <th>Accion</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      wrap.querySelectorAll("tbody tr").forEach((row) => {
+        row.addEventListener("click", () => selectTaskForEdit(row.dataset.id));
+      });
+      wrap.querySelectorAll("[data-edit]").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          editTask(button.dataset.edit);
+        });
+      });
+    }
+
+    function renderTimeline(tasks) {
+      const target = document.getElementById("timelineChart");
+      if (!tasks.length) {
+        target.innerHTML = '<div class="empty">Carga tareas para ver el avance en el tiempo.</div>';
+        return;
+      }
+
+      const dates = tasks.flatMap((task) => [toDate(task.startDate), toDate(task.endDate)]).filter(Boolean);
+      const today = startOfDay(new Date());
+      dates.push(today);
+      const minDate = new Date(Math.min(...dates));
+      const maxDate = new Date(Math.max(...dates));
+      minDate.setDate(minDate.getDate() - 1);
+      maxDate.setDate(maxDate.getDate() + 1);
+
+      const workdays = getWorkdays(minDate, maxDate);
+      const dayWidth = 38;
+      const rowHeight = 28;
+      const left = getTimelineTaskColumnWidth(tasks);
+      const right = 96;
+      const width = Math.max(1180, left + workdays.length * dayWidth + right);
+      const todayIndex = workdayIndexForDate(today, workdays);
+      const columns = `${left}px repeat(${workdays.length}, ${dayWidth}px) ${right}px`;
+      const gridRows = `26px 34px repeat(${tasks.length}, ${rowHeight}px)`;
+
+      const monthBlocks = getMonthBlocks(workdays).map((block) => {
+        return `
+          <div class="timeline-month" style="grid-column:${block.start + 2} / span ${block.count}; grid-row:1;">${escapeHtml(block.label)}</div>
+        `;
+      }).join("");
+
+      const dayGrid = workdays.map((date, index) => {
+        const weekday = ["D", "L", "M", "M", "J", "V", "S"][date.getDay()];
+        return `
+          <div class="timeline-day" style="grid-column:${index + 2}; grid-row:2;">
+            <span>${weekday}</span>
+            <span>${String(date.getDate()).padStart(2, "0")}</span>
+          </div>
+        `;
+      }).join("");
+
+      const rowBackground = tasks.flatMap((task, taskIndex) => {
+        const row = taskIndex + 3;
+        return workdays.map((date, dayIndex) => {
+          const classes = ["timeline-day-bg"];
+          if (date.getDay() === 1) classes.push("week-start");
+          if (dayIndex === todayIndex) classes.push("timeline-today");
+          return `<div class="${classes.join(" ")}" style="grid-column:${dayIndex + 2}; grid-row:${row};"></div>`;
+        });
+      }).join("");
+
+      const rows = tasks.map((task, index) => {
+        const row = index + 3;
+        const startIndex = workdayIndexForDate(toDate(task.startDate), workdays);
+        const endIndex = workdayIndexForDate(toDate(task.endDate), workdays);
+        const startColumn = startIndex + 2;
+        const span = Math.max(1, endIndex - startIndex + 1);
+        const labelColumn = Math.min(workdays.length + 2, startColumn + span);
+        return `
+          <div class="timeline-task" title="${escapeHtml(task.order + ". " + task.name)}" style="grid-column:1; grid-row:${row}; height:${rowHeight}px;">${escapeHtml(task.order + ". " + task.name)}</div>
+          <div class="timeline-task-bar" style="grid-column:${startColumn} / span ${span}; grid-row:${row};">
+            <span style="width:${task.progress}%"></span>
+          </div>
+          <div class="timeline-progress-label" style="grid-column:${labelColumn}; grid-row:${row};">${task.progress}%</div>
+        `;
+      }).join("");
+
+      target.innerHTML = `
+        <div class="timeline-canvas" style="width:${width}px;">
+        <div class="timeline-grid" style="grid-template-columns:${columns}; grid-template-rows:${gridRows};">
+          <div class="timeline-corner top" style="grid-column:1; grid-row:1;"></div>
+          <div class="timeline-corner bottom" style="grid-column:1; grid-row:2;">Tarea</div>
+          ${monthBlocks}
+          ${dayGrid}
+          ${rowBackground}
+          ${rows}
+        </div>
+        </div>
+      `;
+    }
+
+    function renderMinutesChart(task) {
+      const target = document.getElementById("minutesChart");
+      const selectedLabel = document.getElementById("selectedLabel");
+      if (!task) {
+        selectedLabel.textContent = "Sin seleccion";
+        target.innerHTML = '<div class="empty">Selecciona una tarea en la grilla.</div>';
+        return;
+      }
+      selectedLabel.textContent = trimLabel(task.name, 22);
+      const values = [
+        { label: "Actual", value: task.currentMinutes, color: "#146c94" },
+        { label: "Deseado", value: task.desiredMinutes, color: "#e0a11b" },
+        { label: "Resultado", value: task.resultMinutes, color: "#1f9d78" }
+      ];
+      const maxValue = Math.max(...values.map((item) => item.value), 1);
+      const width = 660;
+      const height = 400;
+      const baseY = 326;
+      const barWidth = 104;
+      const gap = 82;
+      const startX = 92;
+      const bars = values.map((item, index) => {
+        const barHeight = Math.max(6, (item.value / maxValue) * 248);
+        const x = startX + index * (barWidth + gap);
+        const y = baseY - barHeight;
+        return `
+          <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="6" fill="${item.color}"></rect>
+          <text x="${x + barWidth / 2}" y="${y - 12}" text-anchor="middle" font-size="18" font-weight="700" fill="#17202a">${formatNumber(item.value)}</text>
+          <text x="${x + barWidth / 2}" y="${baseY + 28}" text-anchor="middle" font-size="15" fill="#43505d">${item.label}</text>
+        `;
+      }).join("");
+      const reduction = calcReduction(task.currentMinutes, task.resultMinutes);
+
+      target.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Grafico comparativo de minutos">
+          <rect x="0" y="0" width="${width}" height="${height}" rx="8" fill="#fbfcfd"></rect>
+          <line x1="48" y1="${baseY}" x2="${width - 42}" y2="${baseY}" stroke="#d9e0e7"></line>
+          ${bars}
+          <text x="${width / 2}" y="38" text-anchor="middle" font-size="17" fill="#687484">Disminucion lograda: ${formatNumber(reduction)}%</text>
+        </svg>
+      `;
+    }
+
+    function renderBatchMetrics() {
+      const rows = sortedBatchRecords();
+      const total = rows.reduce((sum, row) => sum + row.total, 0);
+      const last = rows.at(-1);
+      const prev = rows.at(-2);
+      const delta = last && prev ? last.total - prev.total : 0;
+      const deltaEl = document.getElementById("batchMetricDelta");
+      document.getElementById("batchMetricRows").textContent = rows.length;
+      document.getElementById("batchMetricAvg").textContent = rows.length ? Math.round(total / rows.length) + " min" : "0 min";
+      document.getElementById("batchMetricLast").textContent = last ? last.total + " min" : "0 min";
+      deltaEl.textContent = (delta > 0 ? "+" : "") + delta + " min";
+      deltaEl.style.color = delta > 0 ? "var(--danger)" : delta < 0 ? "var(--accent-2)" : "var(--ink)";
+    }
+
+    function renderBatchTable() {
+      const target = document.getElementById("batchRecordsBody");
+      const rows = sortedBatchRecords();
+      if (!rows.length) {
+        target.innerHTML = '<tr><td colspan="6" class="empty">Carga un CSV de tiempos batch para ver registros.</td></tr>';
+        return;
+      }
+      target.innerHTML = rows.map((row) => `
+        <tr>
+          <td>${escapeHtml(row.fecha)}</td>
+          <td class="num">${row.core}</td>
+          <td class="num">${row.diario}</td>
+          <td class="num">${row.bucket}</td>
+          <td class="num"><strong>${row.total}</strong></td>
+          <td><span class="chip">${escapeHtml(batchPeriodFor(row.fecha))}</span></td>
+        </tr>
+      `).join("");
+    }
+
+    function renderBatchChanges() {
+      const target = document.getElementById("batchChangesBody");
+      const rows = sortedBatchChanges();
+      if (!rows.length) {
+        target.innerHTML = '<tr><td colspan="2" class="empty">Sin hitos de cambio.</td></tr>';
+        return;
+      }
+      target.innerHTML = rows.map((row) => `
+        <tr>
+          <td>${escapeHtml(row.fecha)}</td>
+          <td>${escapeHtml(row.nombre)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderBatchChart() {
+      const target = document.getElementById("batchChart");
+      const rows = filteredBatchRecords();
+      if (!rows.length) {
+        target.innerHTML = '<div class="empty">Carga registros batch para ver el grafico.</div>';
+        return;
+      }
+
+      const mode = document.getElementById("batchChartMode").value;
+      const singleMetric = ["core", "diario", "bucket"].includes(mode) ? mode : null;
+      const width = Math.max(840, rows.length * 76 + 130);
+      const height = 450;
+      const margin = { top: 28, right: 32, bottom: 86, left: 62 };
+      const innerW = width - margin.left - margin.right;
+      const innerH = height - margin.top - margin.bottom;
+      const maxValue = singleMetric
+        ? Math.max(...rows.map((row) => row[singleMetric]), 10)
+        : Math.max(...rows.map((row) => row.core + row.diario + row.bucket), ...rows.map((row) => row.total), 10);
+      const yMax = niceBatchCeil(maxValue * 1.12);
+      const xStep = innerW / rows.length;
+      const barW = Math.min(48, xStep * 0.62);
+      const bottom = margin.top + innerH;
+      const y = (value) => margin.top + innerH - (value / yMax) * innerH;
+      let svg = `<svg viewBox="0 0 ${width} ${height}" style="width:${width}px;max-width:none;height:auto;" role="img" aria-label="Grafico de tiempos batch">`;
+      svg += `<rect x="0" y="0" width="${width}" height="${height}" rx="8" fill="#fbfcfd"></rect>`;
+
+      sortedBatchChanges().forEach((change, index, changes) => {
+        const first = rows.findIndex((row) => row.fecha >= change.fecha);
+        if (first < 0) return;
+        const next = changes[index + 1];
+        const nextIndex = next ? rows.findIndex((row) => row.fecha >= next.fecha) : -1;
+        const last = nextIndex >= 0 ? nextIndex : rows.length;
+        const x = margin.left + first * xStep;
+        const w = Math.max(xStep, (last - first) * xStep);
+        svg += `<rect x="${x}" y="${margin.top}" width="${Math.min(w, width - x - margin.right)}" height="${innerH}" fill="${BATCH_COLORS.change}" opacity="0.07"></rect>`;
+      });
+
+      for (let i = 0; i <= 5; i++) {
+        const value = Math.round((yMax / 5) * i);
+        const yy = y(value);
+        svg += `<line x1="${margin.left}" y1="${yy}" x2="${margin.left + innerW}" y2="${yy}" stroke="#e5ebf1"></line>`;
+        svg += `<text x="${margin.left - 10}" y="${yy + 4}" text-anchor="end" font-size="12" fill="#687484">${value}</text>`;
+      }
+      svg += `<text x="${margin.left}" y="18" font-size="12" fill="#687484">Minutos</text>`;
+
+      if (mode === "grouped") {
+        rows.forEach((row, index) => {
+          const groupW = Math.min(66, xStep * 0.75);
+          const bw = groupW / 3 - 4;
+          const start = margin.left + index * xStep + (xStep - groupW) / 2;
+          [["core", row.core], ["diario", row.diario], ["bucket", row.bucket]].forEach(([metric, value], offset) => {
+            const h = bottom - y(value);
+            svg += batchBar(start + offset * (bw + 6), y(value), bw, h, metric, value, row.fecha);
+          });
+        });
+      } else if (mode === "total") {
+        rows.forEach((row, index) => {
+          const x = margin.left + index * xStep + (xStep - barW) / 2;
+          svg += batchBar(x, y(row.total), barW, bottom - y(row.total), "total", row.total, row.fecha);
+        });
+      } else if (singleMetric) {
+        rows.forEach((row, index) => {
+          const x = margin.left + index * xStep + (xStep - barW) / 2;
+          svg += batchBar(x, y(row[singleMetric]), barW, bottom - y(row[singleMetric]), singleMetric, row[singleMetric], row.fecha);
+        });
+      } else {
+        rows.forEach((row, index) => {
+          const x = margin.left + index * xStep + (xStep - barW) / 2;
+          let base = 0;
+          [["core", row.core], ["diario", row.diario], ["bucket", row.bucket]].forEach(([metric, value]) => {
+            const yTop = y(base + value);
+            const h = y(base) - yTop;
+            svg += batchBar(x, yTop, barW, h, metric, value, row.fecha);
+            base += value;
+          });
+        });
+      }
+
+      if (!singleMetric) {
+        const points = rows.map((row, index) => [margin.left + index * xStep + xStep / 2, y(row.total)]);
+        svg += `<path d="${points.map(([x, yy], index) => `${index ? "L" : "M"} ${x} ${yy}`).join(" ")}" fill="none" stroke="${BATCH_COLORS.total}" stroke-width="3"></path>`;
+        points.forEach(([x, yy], index) => {
+          const row = rows[index];
+          svg += `<circle class="batch-bar" cx="${x}" cy="${yy}" r="5" fill="${BATCH_COLORS.total}" data-fecha="${escapeHtml(row.fecha)}" data-metrica="TOTAL" data-valor="${escapeHtml(row.total)}"></circle>`;
+        });
+      }
+
+      svg += `<line x1="${margin.left}" y1="${bottom}" x2="${margin.left + innerW}" y2="${bottom}" stroke="#9ba8b5"></line>`;
+      svg += `<line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${bottom}" stroke="#9ba8b5"></line>`;
+      rows.forEach((row, index) => {
+        const x = margin.left + index * xStep + xStep / 2;
+        svg += `<text x="${x}" y="${bottom + 24}" text-anchor="end" transform="rotate(-35 ${x} ${bottom + 24})" font-size="11" fill="#687484">${escapeSvg(row.fecha)}</text>`;
+      });
+      sortedBatchChanges().forEach((change) => {
+        const index = rows.findIndex((row) => row.fecha >= change.fecha);
+        if (index < 0) return;
+        const x = margin.left + index * xStep;
+        svg += `<line x1="${x}" y1="${margin.top}" x2="${x}" y2="${bottom}" stroke="${BATCH_COLORS.change}" stroke-width="2" stroke-dasharray="4 5"></line>`;
+        svg += `<text x="${x + 6}" y="${margin.top + 16}" font-size="12" fill="${BATCH_COLORS.change}">${escapeSvg(trimLabel(change.nombre, 24))}</text>`;
+      });
+      svg += "</svg>";
+      target.innerHTML = svg;
+    }
+
+    function batchBar(x, y, width, height, metric, value, fecha) {
+      const safeHeight = Math.max(0, height);
+      return `<rect class="batch-bar" x="${x}" y="${y}" width="${width}" height="${safeHeight}" rx="4" fill="${BATCH_COLORS[metric]}" data-fecha="${escapeHtml(fecha)}" data-metrica="${escapeHtml(metric.toUpperCase())}" data-valor="${escapeHtml(value)}">
+        <title>${escapeHtml(fecha)} - ${metric.toUpperCase()}: ${value} min</title>
+      </rect>`;
+    }
+
+    function showBatchTooltip(event) {
+      const bar = event.target.closest?.(".batch-bar");
+      if (!bar) {
+        hideBatchTooltip();
+        return;
+      }
+      const tooltip = document.getElementById("batchTooltip");
+      tooltip.innerHTML = `<strong>${bar.dataset.fecha}</strong><span>${bar.dataset.metrica}: ${bar.dataset.valor} min</span>`;
+      const pad = 14;
+      let left = event.clientX + 14;
+      let top = event.clientY + 14;
+      tooltip.style.display = "block";
+      const rect = tooltip.getBoundingClientRect();
+      if (left + rect.width + pad > window.innerWidth) left = event.clientX - rect.width - 14;
+      if (top + rect.height + pad > window.innerHeight) top = event.clientY - rect.height - 14;
+      tooltip.style.left = Math.max(pad, left) + "px";
+      tooltip.style.top = Math.max(pad, top) + "px";
+    }
+
+    function hideBatchTooltip() {
+      document.getElementById("batchTooltip").style.display = "none";
+    }
+
+    function importBatchCsv(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        state.batchRecords = parseBatchRecordsCsv(reader.result);
+        persistBatch();
+        render();
+        toast(state.batchRecords.length + " registros batch importados.");
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function importBatchChangesCsv(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        state.batchChanges = parseBatchChangesCsv(reader.result);
+        persistBatch();
+        render();
+        toast(state.batchChanges.length + " hitos batch importados.");
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function exportBatchCsv() {
+      const header = "Fecha,CORE,DIARIO,BUCKET,TOTAL";
+      const rows = sortedBatchRecords().map((row) => [row.fecha, row.core, row.diario, row.bucket, row.total].join(","));
+      downloadFile("tiempos_batch.csv", [header, ...rows].join("\n"), "text/csv");
+      toast("CSV batch exportado.");
+    }
+
+    function fitBatchTotal() {
+      state.batchRecords = state.batchRecords.map((row) => ({ ...row, total: row.core + row.diario + row.bucket }));
+      persistBatch();
+      render();
+      toast("TOTAL batch recalculado.");
+    }
+
+    function parseBatchRecordsCsv(text) {
+      const lines = String(text || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const dataLines = lines[0]?.toLowerCase().includes("fecha") ? lines.slice(1) : lines;
+      return normalizeBatchRecords(dataLines.map((line) => {
+        const [fecha, core, diario, bucket, total] = splitCsvLine(line);
+        return { id: makeId(), fecha, core, diario, bucket, total };
+      }));
+    }
+
+    function parseBatchChangesCsv(text) {
+      const lines = String(text || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const dataLines = lines[0]?.toLowerCase().includes("fecha") ? lines.slice(1) : lines;
+      return normalizeBatchChanges(dataLines.map((line) => {
+        const values = splitCsvLine(line);
+        return { id: makeId(), fecha: values[0], nombre: values.slice(1).join(", ") };
+      }));
+    }
+
+    function splitCsvLine(line) {
+      const values = [];
+      let current = "";
+      let quoted = false;
+      for (const char of String(line)) {
+        if (char === '"') {
+          quoted = !quoted;
+        } else if (char === "," && !quoted) {
+          values.push(current.trim());
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim());
+      return values;
+    }
+
+    function normalizeBatchRecords(records) {
+      return (Array.isArray(records) ? records : []).map((row) => ({
+        id: String(row.id || makeId()),
+        fecha: String(row.fecha || row.Fecha || ""),
+        core: toBatchNumber(row.core ?? row.CORE),
+        diario: toBatchNumber(row.diario ?? row.DIARIO),
+        bucket: toBatchNumber(row.bucket ?? row.BUCKET),
+        total: toBatchNumber(row.total ?? row.TOTAL)
+      })).filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(row.fecha));
+    }
+
+    function normalizeBatchChanges(changes) {
+      return (Array.isArray(changes) ? changes : []).map((row) => ({
+        id: String(row.id || makeId()),
+        fecha: String(row.fecha || row.Fecha || ""),
+        nombre: String(row.nombre || row.Nombre || "")
+      })).filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(row.fecha) && row.nombre);
+    }
+
+    function sortedBatchRecords() {
+      return [...state.batchRecords].sort((a, b) => a.fecha.localeCompare(b.fecha));
+    }
+
+    function sortedBatchChanges() {
+      return [...state.batchChanges].sort((a, b) => a.fecha.localeCompare(b.fecha));
+    }
+
+    function filteredBatchRecords() {
+      const from = document.getElementById("batchFromDate").value;
+      const to = document.getElementById("batchToDate").value;
+      return sortedBatchRecords().filter((row) => (!from || row.fecha >= from) && (!to || row.fecha <= to));
+    }
+
+    function batchPeriodFor(fecha) {
+      const changes = sortedBatchChanges().filter((change) => change.fecha <= fecha);
+      return changes.length ? changes[changes.length - 1].nombre : "Base";
+    }
+
+    function persistBatch() {
+      localStorage.setItem(BATCH_RECORDS_STORAGE_KEY, JSON.stringify(sortedBatchRecords()));
+      localStorage.setItem(BATCH_CHANGES_STORAGE_KEY, JSON.stringify(sortedBatchChanges()));
+    }
+
+    function toBatchNumber(value) {
+      const number = Number(value);
+      return Number.isFinite(number) && number >= 0 ? Math.round(number) : 0;
+    }
+
+    function niceBatchCeil(value) {
+      const step = value <= 60 ? 10 : value <= 180 ? 30 : value <= 600 ? 60 : 120;
+      return Math.ceil(value / step) * step;
+    }
+
+    function updateReductionPreview() {
+      const current = Number(inputs.currentMinutes.value || 0);
+      const result = Number(inputs.resultMinutes.value || 0);
+      document.getElementById("reductionPreview").textContent = formatNumber(calcReduction(current, result)) + "%";
+    }
+
+    function calcReduction(current, result) {
+      if (!current || current <= 0) return 0;
+      return Math.max(0, ((current - result) / current) * 100);
+    }
+
+    function persist() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sortedTasks()));
+    }
+
+    function exportJson() {
+      downloadFile("tareas_planificador.json", JSON.stringify(sortedTasks(), null, 2), "application/json");
+      toast("JSON exportado.");
+    }
+
+    function importJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = normalizeTasks(JSON.parse(reader.result));
+          state.tasks = imported;
+          state.selectedId = imported[0]?.id || null;
+          clearForm(false);
+          persist();
+          render();
+          toast("JSON importado.");
+        } catch {
+          toast("No se pudo importar el archivo JSON.");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function exportHtmlWithData() {
+      const clone = document.documentElement.cloneNode(true);
+      const embedded = clone.querySelector("#embedded-data");
+      embedded.textContent = JSON.stringify(sortedTasks());
+      clone.querySelector("#embedded-batch-records").textContent = batchRecordsToCsv();
+      clone.querySelector("#embedded-batch-changes").textContent = batchChangesToCsv();
+      const html = "<!doctype html>\n" + clone.outerHTML;
+      downloadFile("planificador_tareas_con_datos.html", html, "text/html");
+      toast("HTML con datos exportado.");
+    }
+
+    function batchRecordsToCsv() {
+      const header = "Fecha,CORE,DIARIO,BUCKET,TOTAL";
+      const rows = sortedBatchRecords().map((row) => [row.fecha, row.core, row.diario, row.bucket, row.total].join(","));
+      return [header, ...rows].join("\n");
+    }
+
+    function batchChangesToCsv() {
+      const header = "Fecha,Nombre";
+      const rows = sortedBatchChanges().map((row) => [row.fecha, csvCell(row.nombre)].join(","));
+      return [header, ...rows].join("\n");
+    }
+
+    function csvCell(value) {
+      const text = String(value ?? "");
+      return /[",\n\r]/.test(text) ? '"' + text.replaceAll('"', '""') + '"' : text;
+    }
+
+    function downloadFile(filename, content, mime) {
+      const blob = new Blob([content], { type: mime + ";charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function toast(message) {
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.classList.add("visible");
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => el.classList.remove("visible"), 2400);
+    }
+
+    function xForDate(date, minDate, maxDate, left, innerWidth) {
+      const range = maxDate - minDate || 1;
+      return left + ((date - minDate) / range) * innerWidth;
+    }
+
+    function getWorkdays(minDate, maxDate) {
+      const days = [];
+      const cursor = startOfDay(minDate);
+      while (cursor <= maxDate) {
+        const day = cursor.getDay();
+        if (day >= 1 && day <= 5) days.push(new Date(cursor));
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      return days.length ? days : [startOfDay(minDate)];
+    }
+
+    function getMonthBlocks(workdays) {
+      const formatter = new Intl.DateTimeFormat("es-AR", { month: "short", year: "numeric" });
+      const blocks = [];
+      workdays.forEach((date, index) => {
+        const key = date.getFullYear() + "-" + date.getMonth();
+        const label = formatter.format(date).replace(".", "");
+        const last = blocks.at(-1);
+        if (last && last.key === key) {
+          last.count += 1;
+        } else {
+          blocks.push({ key, label, start: index, count: 1 });
+        }
+      });
+      return blocks;
+    }
+
+    function getTimelineTaskColumnWidth(tasks) {
+      const maxLength = tasks.reduce((max, task) => {
+        return Math.max(max, String(task.order + ". " + task.name).length);
+      }, 8);
+      return Math.max(170, Math.ceil(maxLength * 7.2) + 28);
+    }
+
+    function workdayIndexForDate(date, workdays) {
+      const clean = startOfDay(date);
+      let index = workdays.findIndex((day) => day.getTime() === clean.getTime());
+      if (index < 0) {
+        index = workdays.findIndex((day) => day > clean);
+        if (index < 0) index = workdays.length - 1;
+      }
+      return Math.max(0, index);
+    }
+
+    function xForWorkDate(date, workdays, left, dayWidth) {
+      const clean = startOfDay(date);
+      let index = workdays.findIndex((day) => day.getTime() === clean.getTime());
+      if (index < 0) {
+        index = workdays.findIndex((day) => day > clean);
+        if (index < 0) index = workdays.length - 1;
+      }
+      return left + index * dayWidth;
+    }
+
+    function toDate(value) {
+      return value ? startOfDay(new Date(value + "T00:00:00")) : null;
+    }
+
+    function startOfDay(date) {
+      const clean = new Date(date);
+      clean.setHours(0, 0, 0, 0);
+      return clean;
+    }
+
+    function toIsoDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return year + "-" + month + "-" + day;
+    }
+
+    function formatDate(value) {
+      const date = toDate(value);
+      return date ? DATE_FORMAT.format(date) : "";
+    }
+
+    function formatNumber(value) {
+      return moneylessNumber.format(Number(value || 0));
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function trimLabel(value, max) {
+      const text = String(value);
+      return text.length > max ? text.slice(0, max - 1) + "..." : text;
+    }
+
+    function makeId() {
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      return "task_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeSvg(value) {
+      return escapeHtml(value);
+    }
+  </script>
+</body>
+</html>
